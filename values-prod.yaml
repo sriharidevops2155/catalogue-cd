@@ -1,7 +1,6 @@
 deployment:
   # imageUrl: sriharibandidevops/catalogue
   imageUrl: 583023875867.dkr.ecr.us-east-1.amazonaws.com/roboshop/catalogue
-  imageVersion: v1
 hpa:
   maxReplicas: 10
   utilisation: 75
