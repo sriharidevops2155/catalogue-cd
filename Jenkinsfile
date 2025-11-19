@@ -5,7 +5,7 @@ pipeline {
     environment { 
         appVersion = ''
         REGION = "us-east-1"
-        ACC_ID = "160885265516"
+        ACC_ID = "583023875867"
         PROJECT = "roboshop"
         COMPONENT = "catalogue"
     }
@@ -19,21 +19,6 @@ pipeline {
     }
     // Build
     stages {
-        stage('Deploy') {
-            steps {
-                script {
-                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                        sh """
-                            aws eks update-kubeconfig --region $REGION --name "$PROJECT-${params.deploy_to}"
-                            kubectl get nodes
-                            kubectl apply -f 01-namespace.yml
-                            sed -i "s/IMAGE_VERSION/${params.appVersion}/g" values-${params.deploy_to}.yaml
-                            helm upgrade --install $COMPONENT -f values-${params.deploy_to}.yaml -n $PROJECT .
-                        """
-                        }
-                    }
-                }
-            }
         stage('Check Status'){
             steps{
                 script{
@@ -58,6 +43,21 @@ pipeline {
                 }
             }
         }
+        stage('Deploy') {
+            steps {
+                script {
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                        sh """
+                            aws eks update-kubeconfig --region $REGION --name "$PROJECT-${params.deploy_to}"
+                            kubectl get nodes
+                            kubectl apply -f 01-namespace.yml
+                            sed -i "s/IMAGE_VERSION/${params.appVersion}/g" values-${params.deploy_to}.yaml
+                            helm upgrade --install $COMPONENT -f values-${params.deploy_to}.yaml -n $PROJECT .
+                        """
+                        }
+                    }
+                }
+            }
         // API Testing
         stage('Functional Testing'){
             when{
